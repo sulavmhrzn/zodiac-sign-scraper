@@ -3,3 +3,4 @@
 t.py
 __pycache__
 run_this.py
+*.log

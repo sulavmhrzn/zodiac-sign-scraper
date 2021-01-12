@@ -8,8 +8,13 @@ try:
     from pathlib import Path
     import requests
     import yagmail
+    import logging
 except ModuleNotFoundError:
     sys.exit("Required modules were not found.")
+
+# Setup logging
+logging.basicConfig(filename='zodiac.log', level=logging.INFO,
+                    format="%(asctime)s:%(levelname)s:%(message)s")
 
 if os.path.exists('config'):
     env_path = Path('./config/')/'.env'
@@ -20,7 +25,6 @@ elif os.path.exists('config2'):
 
 email = os.getenv('EMAIL')
 password = os.getenv('PASSWORD')
-print(email, password)
 
 
 class Zodiac:
@@ -72,5 +76,6 @@ class SendMail(Zodiac):
         try:
             yag = yagmail.SMTP(email, password)
             yag.send(self.email, subject=subject, contents=contents)
+            logging.info(f"Email successfully sent.")
         except yagmail.error.YagInvalidEmailAddress as err:
-            print("Invalid Email Address:", err)
+            logging.error("Invalid Email Address:", err)
