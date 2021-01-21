@@ -16,12 +16,17 @@ except ModuleNotFoundError:
 logging.basicConfig(filename='zodiac.log', level=logging.INFO,
                     format="%(asctime)s:%(levelname)s:%(message)s")
 
+
+# Get and set environment variables
 if os.path.exists('config'):
     env_path = Path('./config/')/'.env'
     load_dotenv(dotenv_path=env_path)
 elif os.path.exists('config2'):
     env_path = Path('./config2/')/'.env'
     load_dotenv(dotenv_path=env_path)
+else:
+    print("No Config file found.")
+    exit()
 
 email = os.getenv('EMAIL')
 password = os.getenv('PASSWORD')
@@ -38,7 +43,8 @@ class Zodiac:
         self.scrape()
 
     def scrape(self):
-        while True:
+        retry = 1
+        while retry <= 10:
             try:
                 r = requests.get(self.url)
                 soup = BeautifulSoup(r.content, 'html.parser')
@@ -46,19 +52,23 @@ class Zodiac:
                 self.TITLE = soup.title.string
                 self.CONTENT = content
             except requests.exceptions.HTTPError as err:
-                print("HTTP error:", err)
+                print(f"Retry: {retry}\nHTTP error:", err)
+                retry += 1
                 time.sleep(2)
                 continue
             except requests.exceptions.ConnectionError as err:
-                print("Connection error:", err)
+                print(f"Retry: {retry}\nConnection error:", err)
+                retry += 1
                 time.sleep(2)
                 continue
             except requests.exceptions.Timeout as err:
-                print("Timeout Error:", err)
+                print(f"Retry: {retry}\nTimeout Error:", err)
+                retry += 1
                 time.sleep(2)
                 continue
             except requests.exceptions.RequestException as err:
-                print("Oops: Something Else", err)
+                print(f"Retry: {retry}\nOops: Something Else", err)
+                retry += 1
                 time.sleep(2)
                 continue
             break
